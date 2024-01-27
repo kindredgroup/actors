@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Actors;
 
 namespace Examples.Echo;

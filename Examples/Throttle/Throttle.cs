@@ -1,6 +1,3 @@
-using System.Data.Common;
-using System.Diagnostics.CodeAnalysis;
-using System.Diagnostics.Contracts;
 using Actors;
 
 namespace Examples.Throttle;

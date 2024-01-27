@@ -1,6 +1,4 @@
-﻿using System.Collections.Specialized;
-
-class Program
+﻿class Program
 {
     static async Task Main(string[] args)
     {
