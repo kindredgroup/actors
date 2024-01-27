@@ -6,7 +6,7 @@ public abstract class Actor<M>
     {
         get
         {
-            lock (inboxLock)
+            lock (stateLock)
             {
                 return scheduled;
             }
@@ -17,7 +17,7 @@ public abstract class Actor<M>
 
     private readonly Queue<M> inbox = new Queue<M>(InboxCapacity);
 
-    private readonly object inboxLock = new object();
+    private readonly object stateLock = new object();
 
     private bool scheduled = false;
 
@@ -33,7 +33,7 @@ public abstract class Actor<M>
     public void Send(M message)
     {
         bool willSchedule;
-        lock (inboxLock)
+        lock (stateLock)
         {
             inbox.Enqueue(message);
             if (!scheduled)
@@ -55,7 +55,7 @@ public abstract class Actor<M>
 
     public Task Drain()
     {
-        lock (inboxLock)
+        lock (stateLock)
         {
             if (scheduled)
             {
@@ -84,7 +84,7 @@ public abstract class Actor<M>
             }
 
             bool hasBacklog;
-            lock (inboxLock)
+            lock (stateLock)
             {
                 hasBacklog = inbox.Any();
                 if (!hasBacklog)
@@ -116,7 +116,7 @@ public abstract class Actor<M>
 
         public M Receive()
         {
-            lock (parent.inboxLock)
+            lock (parent.stateLock)
             {
                 return parent.inbox.Dequeue();
             }
@@ -125,7 +125,10 @@ public abstract class Actor<M>
 
     protected abstract Task Perform(ActorContext context);
 
-    protected virtual void OnError(Exception e) {}
+    protected virtual void OnError(Exception e) 
+    {
+        Console.Error.WriteLine("Error in {0}: {1}", this.GetType().FullName, e);
+    }
 }
 
 public abstract class Actor : Actor<object>;

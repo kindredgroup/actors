@@ -13,7 +13,7 @@ public class Example
     /// <param name="id">Unique identifier of the work item.</param>
     class WorkItem(int id)
     {
-        public int Id { get; } = id;
+        internal int Id { get; } = id;
     }
 
     /// <summary>
@@ -93,11 +93,6 @@ public class Example
             Console.WriteLine("draining all child actors");
             await Task.WhenAll(DrainTasks());
         }
-
-        protected override void OnError(Exception e)
-        {
-            Console.WriteLine("Error in parent actor: {0}", e);
-        }
     }
 
     class Child(int id) : Actor<int>
@@ -110,18 +105,13 @@ public class Example
             Console.WriteLine("child {0} working on item {1}", Id, message);
             return Task.Delay(10);
         }
-
-        protected override void OnError(Exception e)
-        {
-            Console.WriteLine("Error in child actor: {0}", e);
-        }
     }
     
     public static async Task RunAsync()
     {
         Console.WriteLine("---\nRunning throttle");
         var parentActor = new Parent();
-        const int Messages = 100;
+        const int Messages = 20;
         var rand = new Random();
 
         for (int i = 0; i < Messages; i++)

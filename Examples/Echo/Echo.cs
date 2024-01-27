@@ -18,7 +18,7 @@ public class Example
 
     class PingActor : Actor
     {
-        internal Actor? Friend { get; set; }
+        internal PongActor? Friend { get; set; }
 
         private int remainingMessages;
 
@@ -57,7 +57,7 @@ public class Example
 
     class PongActor : Actor
     {
-        internal Actor? Friend { get; set; }
+        internal PingActor? Friend { get; set; }
 
         protected override Task Perform(ActorContext context)
         {
