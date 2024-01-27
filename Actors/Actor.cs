@@ -13,9 +13,9 @@ public abstract class Actor<M>
         }
     }
 
-    private const int InboxCapacity = 32;
+    private const int DefaultInitialInboxCapacity = 32;
 
-    private readonly Queue<M> inbox = new Queue<M>(InboxCapacity);
+    private readonly Queue<M> inbox;
 
     private readonly object stateLock = new object();
 
@@ -25,8 +25,11 @@ public abstract class Actor<M>
 
     private readonly Queue<TaskCompletionSource> drainListeners = new Queue<TaskCompletionSource>(1);
 
-    protected Actor()
+    protected Actor() : this(DefaultInitialInboxCapacity) { }
+
+    protected Actor(int initialInboxCapacity)
     {
+        this.inbox = new Queue<M>(DefaultInitialInboxCapacity);
         this.context = new ActorContext(this);
     }
 
@@ -36,14 +39,10 @@ public abstract class Actor<M>
         lock (stateLock)
         {
             inbox.Enqueue(message);
-            if (!scheduled)
+            willSchedule = !scheduled;
+            if (willSchedule)
             {
                 scheduled = true;
-                willSchedule = true;
-            }
-            else
-            {
-                willSchedule = false;
             }
         }
 
@@ -107,38 +106,38 @@ public abstract class Actor<M>
 
     public class ActorContext
     {
-        private Actor<M> parent;
+        private readonly Actor<M> actor;
 
-        internal ActorContext(Actor<M> parent)
+        internal ActorContext(Actor<M> actor)
         {
-            this.parent = parent;
+            this.actor = actor;
         }
 
         public M Receive()
         {
-            lock (parent.stateLock)
+            lock (actor.stateLock)
             {
-                return parent.inbox.Dequeue();
+                return actor.inbox.Dequeue();
             }
         }
 
         public List<M> ReceiveAll()
         {
-            lock (parent.stateLock)
+            lock (actor.stateLock)
             {
-                var batch = new List<M>(parent.inbox.Count);
-                while (parent.inbox.Any())
+                var batch = new List<M>(actor.inbox.Count);
+                while (actor.inbox.Any())
                 {
-                    batch.Add(parent.inbox.Dequeue());
+                    batch.Add(actor.inbox.Dequeue());
                 }
                 return batch;
-            } 
+            }
         }
     }
 
     protected abstract Task Perform(ActorContext context);
 
-    protected virtual void OnError(Exception e) 
+    protected virtual void OnError(Exception e)
     {
         Console.Error.WriteLine("Error in {0}: {1}", this.GetType().FullName, e);
     }
