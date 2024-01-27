@@ -121,6 +121,19 @@ public abstract class Actor<M>
                 return parent.inbox.Dequeue();
             }
         }
+
+        public List<M> ReceiveAll()
+        {
+            lock (parent.stateLock)
+            {
+                var batch = new List<M>(parent.inbox.Count);
+                while (parent.inbox.Any())
+                {
+                    batch.Add(parent.inbox.Dequeue());
+                }
+                return batch;
+            } 
+        }
     }
 
     protected abstract Task Perform(ActorContext context);
