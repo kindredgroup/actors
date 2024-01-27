@@ -16,9 +16,9 @@ public class Example
 
     class Pong {}
 
-    class PingActor : ActorBase
+    class PingActor : Actor
     {
-        internal ActorBase? Friend { get; set; }
+        internal Actor? Friend { get; set; }
 
         private int remainingMessages;
 
@@ -55,9 +55,9 @@ public class Example
         }
     }
 
-    class PongActor : ActorBase
+    class PongActor : Actor
     {
-        internal ActorBase? Friend { get; set; }
+        internal Actor? Friend { get; set; }
 
         protected override Task Perform(ActorContext context)
         {
@@ -77,7 +77,7 @@ public class Example
 
     public static async Task RunAsync()
     {
-        Console.WriteLine("Running echo");
+        Console.WriteLine("---\nRunning echo");
         var pingActor = new PingActor();
         var pongActor = new PongActor();
         pingActor.Friend = pongActor;
