@@ -18,6 +18,7 @@ public class Example
         protected override Task Perform(ActorContext context)
         {
             var batch = context.ReceiveAll();
+            Console.WriteLine("processing batch of {0}", batch.Count);
             Dictionary<string, decimal> merge = [];
             foreach (var update in batch)
             {
@@ -47,7 +48,7 @@ public class Example
         var marketActor = new MarketActor();
         string[] symbols = ["AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META"];
         var rand = new Random();
-        for (int i = 0; i < 20; i++)
+        for (int i = 0; i < 200; i++)
         {
             var symbol = symbols[rand.Next() % symbols.Length];
             var price = new Decimal(Math.Abs(rand.NextDouble()));
