@@ -64,15 +64,9 @@ public class Example
             children[childId]!.Send(workId);
         }
 
-        private Task[] DrainTasks()
-        {
-            return children.Where(child => child is not null).Select(child => child!.Drain()).ToArray();
-        }
-
         private async Task DisposeSomeActorsAsync()
         {
-            var drainTasks = DrainTasks();
-            await Task.WhenAny(drainTasks);
+            await Troupe<int>.OfNullable(children).DrainAny();
 
             foreach (var child in children)
             {
@@ -88,7 +82,8 @@ public class Example
         private async Task DrainAllActorsAsync()
         {
             Console.WriteLine("draining all child actors");
-            await Task.WhenAll(DrainTasks());
+            await Troupe<int>.OfNullable(children).DrainAll();
+            Console.WriteLine("drained");
         }
     }
 
