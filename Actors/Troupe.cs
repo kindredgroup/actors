@@ -43,9 +43,9 @@ public sealed class Troupe
         return Task.WhenAny(DrainTasks());
     }
 
-    private Task[] DrainTasks()
+    private IEnumerable<Task> DrainTasks()
     {
-        return members.Select(x => x.Drain()).ToArray();
+        return members.Select(member => member.Drain());
     }
 
     public static Troupe Of(IEnumerable<ISchedulable> members)
