@@ -2,6 +2,15 @@ using Actors;
 
 namespace Examples.Counter;
 
+/// <summary>
+/// A simple counter that accepts instructions for mutating its value (by way of
+/// <c>Increment</c> and <c>Set</c> messages) and for retrieving its state (using
+/// a <c>Get</c> message).
+/// 
+/// The example demonstrates state manipulation using message passing and state
+/// querying using a quasi request-response mechanism. The response part is 
+/// implemented with unbounded tasks (using a <c>TaskCompletionSource</c>).
+/// </summary>
 public class Example
 {
     class Increment {}

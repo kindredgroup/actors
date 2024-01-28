@@ -2,6 +2,27 @@ using Actors;
 
 namespace Examples.Throttle;
 
+/// <summary>
+/// A topology in which a parent actor delegates partially ordered work items 
+/// to child actors to be processed concurrently. (The ordering is determined by
+/// taking the work item ID modulo a constant <c>Radix</c>.)
+/// 
+/// There is a caveat: the parent cannot recruit more than a constant
+/// <c>MaxChildren</c> number of child actors to process the work items concurrently.
+/// When this number of reached, the parent must hold off from processing further
+/// messages until at least one of its children is done with their work, at which point
+/// the child can be disposed and a new one spawned in its place.
+/// 
+/// The example demonstrates a type of supervision strategy where an actor awaits 
+/// the 'draining' of its children. While draining is in progress, the supervising actor
+/// does not process any messages. This has the effect of throttling the parent, limiting
+/// the concurrency factor.
+/// 
+/// The example also demonstrates a cascading drain, wherein the external caller drains the 
+/// parent actor while the latter drains all of its children. The external caller's awaited
+/// task completes only when the entire hierarchy has been drained; i.e., when the actor
+/// topology has no work remaining.
+/// </summary>
 public class Example
 {
     /// <summary>
@@ -18,13 +39,31 @@ public class Example
     /// </summary>
     class DrainAll {}
 
+    /// <summary>
+    /// The parent actor, containing an array of child actors. Some slots in
+    /// the <c>children</c> array will be <c>null</c>, as there are fewer 
+    /// active children than the number of slots in the array.
+    /// </summary>
     class Parent : Actor
     {
+        /// <summary>
+        /// How many ways to divide the work.
+        /// </summary>
         private const int Radix = 10;
+
+        /// <summary>
+        /// The maximum number of works that may coexist.
+        /// </summary>
         private const int MaxChildren = 8;
 
+        /// <summary>
+        /// The worker children. (Child labour.)
+        /// </summary>
         private readonly Child?[] children = new Child[Radix];
 
+        /// <summary>
+        /// The number of currently active child actors.
+        /// </summary>
         private int numChildren;
 
         protected override async Task Perform(Inbox inbox)
@@ -32,7 +71,7 @@ public class Example
             switch (inbox.Receive())
             {
                 case WorkItem workItem:
-                    await DoWork(workItem);
+                    await DelegateWork(workItem);
                     break;
 
                 case DrainAll:
@@ -44,7 +83,18 @@ public class Example
             }
         }
 
-        private async Task DoWork(WorkItem workItem)
+        /// <summary>
+        /// Delegates work on the parent actor by identifying
+        /// the desired child actor and forwarding the work
+        /// item ID to the child.
+        /// 
+        /// The child may not exist. If there is spare capacity
+        /// available, a child is created. Otherwise, the parent
+        /// awaits the disposal of one or more of its children.
+        /// </summary>
+        /// <param name="workItem"></param>
+        /// <returns></returns>
+        private async Task DelegateWork(WorkItem workItem)
         {
             var workId = workItem.Id;
             var childId = workId % Radix;
@@ -64,6 +114,13 @@ public class Example
             children[childId]!.Send(workId);
         }
 
+        /// <summary>
+        /// Awaits the draining of child actors and removes them
+        /// from the <c>children</c> array, leaving a <c>null</c> in their place.
+        /// 
+        /// Draining is considered complete when the actor exhausts its inbox.
+        /// </summary>
+        /// <returns></returns>
         private async Task DisposeSomeActorsAsync()
         {
             await Troupe<int>.OfNullable(children).DrainAny();
@@ -79,6 +136,10 @@ public class Example
             }
         }
 
+        /// <summary>
+        /// Drains all child actors, awaiting on all.
+        /// </summary>
+        /// <returns></returns>
         private async Task DrainAllActorsAsync()
         {
             Console.WriteLine("draining all child actors");
@@ -87,6 +148,10 @@ public class Example
         }
     }
 
+    /// <summary>
+    /// A child actor that processes the work handed to it.
+    /// </summary>
+    /// <param name="id"></param>
     class Child(int id) : Actor<int>
     {
         public int Id { get; } = id;

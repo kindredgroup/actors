@@ -1,7 +1,14 @@
 namespace Actors;
 
+/// <summary>
+/// A grouping of actors for composing drain requests.
+/// </summary>
+/// <typeparam name="M">The message type.</typeparam>
 public sealed class Troupe<M>
 {
+    /// <summary>
+    /// The actors in the troupe.
+    /// </summary>
     public List<Actor<M>> Actors
     {
         get
@@ -17,11 +24,19 @@ public sealed class Troupe<M>
         this.actors = actors;
     }
 
+    /// <summary>
+    /// Obtains a task that is completed when all actors in the troupe have been drained.
+    /// </summary>
+    /// <returns>A <c>Task</c>.</returns>
     public Task DrainAll()
     {
         return Task.WhenAll(DrainTasks());
     }
 
+    /// <summary>
+    /// Obtains a task that is completed when at least one actor in the troupe has been drained.
+    /// </summary>
+    /// <returns>A <c>Task</c>.</returns>
     public Task DrainAny()
     {
         return Task.WhenAny(DrainTasks());
