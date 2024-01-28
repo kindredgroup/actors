@@ -27,9 +27,9 @@ public class Example
 
         private int numChildren;
 
-        protected override async Task Perform(ActorContext context)
+        protected override async Task Perform(Inbox inbox)
         {
-            switch (context.Receive())
+            switch (inbox.Receive())
             {
                 case WorkItem workItem:
                     await DoWork(workItem);
@@ -91,9 +91,9 @@ public class Example
     {
         public int Id { get; } = id;
 
-        protected override Task Perform(ActorContext context)
+        protected override Task Perform(Inbox inbox)
         {
-            var message = context.Receive();
+            var message = inbox.Receive();
             Console.WriteLine("child {0} working on item {1}", Id, message);
             return Task.Delay(10);
         }

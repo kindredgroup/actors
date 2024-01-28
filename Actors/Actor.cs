@@ -1,5 +1,12 @@
 ﻿namespace Actors;
 
+/// <summary>
+/// A unit of serial execution within a broader concurrent topology.
+/// 
+/// Each actor has a dedicated inbox to which messages can be posted in a fire-and-forget fashion via the <c>Send()</c> method. They 
+/// are subsequently delivered to the actor's <c>Perform()</c> method in the order of their submission.
+/// </summary>
+/// <typeparam name="M"></typeparam>
 public abstract class Actor<M>
 {
     public bool Scheduled
@@ -15,13 +22,13 @@ public abstract class Actor<M>
 
     private const int DefaultInitialInboxCapacity = 32;
 
-    private readonly Queue<M> inbox;
+    private readonly Queue<M> messages;
 
     private readonly object stateLock = new object();
 
     private bool scheduled = false;
 
-    private readonly ActorContext context;
+    private readonly Inbox inbox;
 
     private readonly Queue<TaskCompletionSource> drainListeners = new Queue<TaskCompletionSource>(1);
 
@@ -29,8 +36,8 @@ public abstract class Actor<M>
 
     protected Actor(int initialInboxCapacity)
     {
-        this.inbox = new Queue<M>(DefaultInitialInboxCapacity);
-        this.context = new ActorContext(this);
+        this.messages = new Queue<M>(DefaultInitialInboxCapacity);
+        this.inbox = new Inbox(this);
     }
 
     public void Send(M message)
@@ -38,7 +45,7 @@ public abstract class Actor<M>
         bool willSchedule;
         lock (stateLock)
         {
-            inbox.Enqueue(message);
+            messages.Enqueue(message);
             willSchedule = !scheduled;
             if (willSchedule)
             {
@@ -75,7 +82,7 @@ public abstract class Actor<M>
         {
             try
             {
-                await Perform(context);
+                await Perform(inbox);
             }
             catch (Exception e)
             {
@@ -85,7 +92,7 @@ public abstract class Actor<M>
             bool hasBacklog;
             lock (stateLock)
             {
-                hasBacklog = inbox.Any();
+                hasBacklog = messages.Any();
                 if (!hasBacklog)
                 {
                     scheduled = false;
@@ -104,11 +111,11 @@ public abstract class Actor<M>
         }
     }
 
-    public class ActorContext
+    public class Inbox
     {
         private readonly Actor<M> actor;
 
-        internal ActorContext(Actor<M> actor)
+        internal Inbox(Actor<M> actor)
         {
             this.actor = actor;
         }
@@ -117,7 +124,7 @@ public abstract class Actor<M>
         {
             lock (actor.stateLock)
             {
-                return actor.inbox.Dequeue();
+                return actor.messages.Dequeue();
             }
         }
 
@@ -125,17 +132,17 @@ public abstract class Actor<M>
         {
             lock (actor.stateLock)
             {
-                var batch = new List<M>(actor.inbox.Count);
-                while (actor.inbox.Any())
+                var batch = new List<M>(actor.messages.Count);
+                while (actor.messages.Any())
                 {
-                    batch.Add(actor.inbox.Dequeue());
+                    batch.Add(actor.messages.Dequeue());
                 }
                 return batch;
             }
         }
     }
 
-    protected abstract Task Perform(ActorContext context);
+    protected abstract Task Perform(Inbox inbox);
 
     protected virtual void OnError(Exception e)
     {

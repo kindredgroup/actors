@@ -15,9 +15,9 @@ public class Example
     {
         private readonly Dictionary<string, decimal> prices = [];
 
-        protected override Task Perform(ActorContext context)
+        protected override Task Perform(Inbox inbox)
         {
-            var batch = context.ReceiveAll();
+            var batch = inbox.ReceiveAll();
             var coalesced = Coalesce(batch);
             Console.WriteLine("batch of {0} coalesced to {1}", batch.Count, coalesced.Count);
             foreach (var entry in coalesced)

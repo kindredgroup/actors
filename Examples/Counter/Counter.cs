@@ -20,9 +20,9 @@ public class Example
     {
         private int count;
 
-        protected override Task Perform(ActorContext context)
+        protected override Task Perform(Inbox inbox)
         {
-            switch (context.Receive())
+            switch (inbox.Receive())
             {
                 case Increment increment:
                     count++;

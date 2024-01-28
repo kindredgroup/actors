@@ -17,21 +17,21 @@ public class Example
 
     class PingActor : Actor
     {
-        internal PongActor? Friend { get; set; }
+        internal PongActor? Opponent { get; set; }
 
         private int remainingMessages;
 
         private SendPings? sendPings;
 
-        protected override Task Perform(ActorContext context)
+        protected override Task Perform(Inbox inbox)
         {
-            switch (context.Receive())
+            switch (inbox.Receive())
             {
                 case SendPings message:
                     Console.WriteLine($"Will send {message.Pings} pings");
                     this.sendPings = message;
                     this.remainingMessages = sendPings.Pings;
-                    Friend!.Send(new Ping());
+                    Opponent!.Send(new Ping());
                     break;
 
                 case Pong message:
@@ -39,7 +39,7 @@ public class Example
                     remainingMessages--;
                     if (remainingMessages > 0)
                     {
-                        Friend!.Send(new Ping());
+                        Opponent!.Send(new Ping());
                     }
                     else
                     {
@@ -56,15 +56,15 @@ public class Example
 
     class PongActor : Actor
     {
-        internal PingActor? Friend { get; set; }
+        internal PingActor? Opponent { get; set; }
 
-        protected override Task Perform(ActorContext context)
+        protected override Task Perform(Inbox inbox)
         {
-            switch (context.Receive())
+            switch (inbox.Receive())
             {
                 case Ping message:
                     Console.WriteLine("ping ->");
-                    Friend!.Send(new Pong());
+                    Opponent!.Send(new Pong());
                     break;
                 
                 default:
@@ -79,8 +79,8 @@ public class Example
         Console.WriteLine("---\nRunning echo");
         var pingActor = new PingActor();
         var pongActor = new PongActor();
-        pingActor.Friend = pongActor;
-        pongActor.Friend = pingActor;
+        pingActor.Opponent = pongActor;
+        pongActor.Opponent = pingActor;
 
         var start = new SendPings(10);
         pingActor.Send(start);
