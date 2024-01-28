@@ -123,7 +123,7 @@ public class Example
         /// <returns></returns>
         private async Task DisposeSomeActorsAsync()
         {
-            await Troupe<int>.OfNullable(children).DrainAny();
+            await Troupe.OfNullable(children).DrainAny();
 
             foreach (var child in children)
             {
@@ -143,7 +143,7 @@ public class Example
         private async Task DrainAllActorsAsync()
         {
             Console.WriteLine("draining all child actors");
-            await Troupe<int>.OfNullable(children).DrainAll();
+            await Troupe.OfNullable(children).DrainAll();
             Console.WriteLine("drained");
         }
     }

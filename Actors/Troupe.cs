@@ -1,31 +1,31 @@
 namespace Actors;
 
 /// <summary>
-/// A grouping of actors for composing drain requests.
+/// A grouping of schedulable instances for composing drain requests.
 /// </summary>
-/// <typeparam name="M">The message type.</typeparam>
-public sealed class Troupe<M>
+public sealed class Troupe
 {
     /// <summary>
-    /// The actors in the troupe.
+    /// The members of the troupe.
     /// </summary>
-    public List<Actor<M>> Actors
+    public List<ISchedulable> Members
     {
         get
         {
-            return actors;
+            return members;
         }
     }
 
-    private readonly List<Actor<M>> actors;
+    private readonly List<ISchedulable> members;
 
-    private Troupe(List<Actor<M>> actors)
+    private Troupe(List<ISchedulable> members)
     {
-        this.actors = actors;
+        this.members = members;
     }
 
     /// <summary>
-    /// Obtains a task that is completed when all actors in the troupe have been drained.
+    /// Obtains a task that is completed when all members of the troupe have been drained of 
+    /// their backlogs and unscheduled.
     /// </summary>
     /// <returns>A <c>Task</c>.</returns>
     public Task DrainAll()
@@ -34,7 +34,8 @@ public sealed class Troupe<M>
     }
 
     /// <summary>
-    /// Obtains a task that is completed when at least one actor in the troupe has been drained.
+    /// Obtains a task that is completed when at least one member of the troupe has been drained 
+    /// of its backlog and unscheduled.
     /// </summary>
     /// <returns>A <c>Task</c>.</returns>
     public Task DrainAny()
@@ -44,16 +45,16 @@ public sealed class Troupe<M>
 
     private Task[] DrainTasks()
     {
-        return actors.Select(actor => actor.Drain()).ToArray();
+        return members.Select(x => x.Drain()).ToArray();
     }
 
-    public static Troupe<M> Of(IEnumerable<Actor<M>> actors)
+    public static Troupe Of(IEnumerable<ISchedulable> members)
     {
-        return new Troupe<M>(actors.ToList());
+        return new Troupe(members.ToList());
     }        
     
-    public static Troupe<M> OfNullable(IEnumerable<Actor<M>?> actors)
+    public static Troupe OfNullable(IEnumerable<ISchedulable?> members)
     {
-        return Troupe<M>.Of(actors.Where(actor => actor is not null).Select(actor => actor!));
+        return Of(members.Where(member => member is not null).Select(member => member!));
     }
 }

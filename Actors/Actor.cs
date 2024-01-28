@@ -9,7 +9,7 @@
 /// order of their submission.
 /// </summary>
 /// <typeparam name="M">The message type.</typeparam>
-public abstract class Actor<M>
+public abstract class Actor<M> : ISchedulable
 {
     /// <summary>
     /// A property indicating that an actor is scheduled, meaning that there
