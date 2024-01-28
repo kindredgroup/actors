@@ -4,6 +4,7 @@
     {
         var examples = new Dictionary<string, Func<Task>>()
         {
+            { "Hello", () => Examples.Hello.Example.RunAsync() },
             { "Echo", () => Examples.Echo.Example.RunAsync() },
             { "Throttle", () => Examples.Throttle.Example.RunAsync() },
             { "Counter", () => Examples.Counter.Example.RunAsync() },

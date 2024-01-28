@@ -48,11 +48,22 @@ public sealed class Troupe
         return members.Select(member => member.Drain());
     }
 
+    /// <summary>
+    /// Creates a troupe from an iterator of <c>ISchedulable</c> elements.
+    /// </summary>
+    /// <param name="members">The schedulable instances.</param>
+    /// <returns>A new troupe.</returns>
     public static Troupe Of(IEnumerable<ISchedulable> members)
     {
         return new Troupe(members.ToList());
     }        
     
+    /// <summary>
+    /// Creates a troupe from an iterator of possibly null <c>ISchedulable</c> elements, keeping only
+    /// the non-null ones.
+    /// </summary>
+    /// <param name="members">The schedulable instances, possibly containing null references.</param>
+    /// <returns>A new troupe.</returns>
     public static Troupe OfNullable(IEnumerable<ISchedulable?> members)
     {
         return Of(members.Where(member => member is not null).Select(member => member!));
