@@ -219,4 +219,9 @@ public abstract class Actor<M>
 /// An actor specialization that expects messages of type <c>object</c> and most
 /// likely handles multiple concrete message types.
 /// </summary>
-public abstract class Actor : Actor<object>;
+public abstract class Actor : Actor<object>
+{
+    protected Actor() : base() { }
+
+    protected Actor(int initialInboxCapacity) : base(initialInboxCapacity) { }
+}
