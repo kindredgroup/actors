@@ -22,6 +22,7 @@ class Printer : Actor<char>
     }
 }
 
+// calling the actor
 var printer = new Printer();
 foreach (var ch in "Hello World\n")
 {

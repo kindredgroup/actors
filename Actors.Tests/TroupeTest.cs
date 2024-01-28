@@ -1,6 +1,6 @@
 namespace Actors.Tests;
 
-static class IEnumerableExtensions
+static class PausingActorExtensions
 {
     public static void AssertNoError(this PausingActor[] actors)
     {
@@ -86,7 +86,7 @@ public class TroupeTest
         m1.Resume.SetResult();
         await drain;
         Assert.IsFalse(actors[1].Scheduled);
-        
+
         actors.AssertNoError();
     }
 }
