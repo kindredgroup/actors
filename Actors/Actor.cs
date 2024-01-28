@@ -22,8 +22,6 @@ public abstract class Actor<M>
 
     private const int DefaultInitialInboxCapacity = 32;
 
-    private readonly Queue<M> messages;
-
     private readonly object stateLock = new object();
 
     private bool scheduled = false;
@@ -36,8 +34,7 @@ public abstract class Actor<M>
 
     protected Actor(int initialInboxCapacity)
     {
-        this.messages = new Queue<M>(DefaultInitialInboxCapacity);
-        this.inbox = new Inbox(this);
+        this.inbox = new Inbox(this, initialInboxCapacity);
     }
 
     public void Send(M message)
@@ -45,7 +42,7 @@ public abstract class Actor<M>
         bool willSchedule;
         lock (stateLock)
         {
-            messages.Enqueue(message);
+            inbox.messages.Enqueue(message);
             willSchedule = !scheduled;
             if (willSchedule)
             {
@@ -92,7 +89,7 @@ public abstract class Actor<M>
             bool hasBacklog;
             lock (stateLock)
             {
-                hasBacklog = messages.Any();
+                hasBacklog = inbox.messages.Any();
                 if (!hasBacklog)
                 {
                     scheduled = false;
@@ -115,16 +112,19 @@ public abstract class Actor<M>
     {
         private readonly Actor<M> actor;
 
-        internal Inbox(Actor<M> actor)
+        internal readonly Queue<M> messages;
+
+        internal Inbox(Actor<M> actor, int initialInboxCapacity)
         {
             this.actor = actor;
+            this.messages = new Queue<M>(initialInboxCapacity);
         }
 
         public M Receive()
         {
             lock (actor.stateLock)
             {
-                return actor.messages.Dequeue();
+                return messages.Dequeue();
             }
         }
 
@@ -132,10 +132,10 @@ public abstract class Actor<M>
         {
             lock (actor.stateLock)
             {
-                var batch = new List<M>(actor.messages.Count);
-                while (actor.messages.Any())
+                var batch = new List<M>(messages.Count);
+                while (messages.Any())
                 {
-                    batch.Add(actor.messages.Dequeue());
+                    batch.Add(messages.Dequeue());
                 }
                 return batch;
             }
