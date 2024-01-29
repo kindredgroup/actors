@@ -52,7 +52,7 @@ public class Example
         await sinkActor.Drain();
     }
 
-    public static async Task FreeCapacityAsync(Dictionary<int, Task> pendingWork, int maxPending)
+    private static async Task FreeCapacityAsync(Dictionary<int, Task> pendingWork, int maxPending)
     {
         if (pendingWork.Count == maxPending)
         {
