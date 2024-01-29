@@ -3,7 +3,7 @@ _help:
 
 # runs the example app
 run *ARGS:
-    dotnet run --project Examples/Examples.csproj {{ARGS}}
+    dotnet run --project Examples {{ARGS}}
 
 # runs the test cases
 test:
@@ -12,3 +12,7 @@ test:
 # loops through test cases
 loop:
     while [ true ]; do dotnet test; done
+
+# runs the benchmarks
+bench:
+    dotnet run --property:Configuration=Release --project Actors.Benchmarks

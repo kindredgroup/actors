@@ -52,12 +52,12 @@ public class Example
         private const int Radix = 10;
 
         /// <summary>
-        /// The maximum number of works that may coexist.
+        /// The maximum number of workers that may coexist.
         /// </summary>
         private const int MaxChildren = 8;
 
         /// <summary>
-        /// The worker children. (Child labour.)
+        /// The child worker actors. (Child labour.)
         /// </summary>
         private readonly Child?[] children = new Child[Radix];
 

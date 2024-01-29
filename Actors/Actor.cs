@@ -150,7 +150,7 @@ public abstract class Actor<M> : ISchedulable
     /// <summary>
     /// Represents the actor's dedicated inbox.
     /// </summary>
-    public class Inbox
+    protected class Inbox
     {
         private readonly Actor<M> actor;
 
