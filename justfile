@@ -15,4 +15,4 @@ loop:
 
 # runs the benchmarks
 bench:
-    dotnet run --property:Configuration=Release --project Actors.Benchmarks
+    dotnet run -c Release --project Actors.Benchmarks
