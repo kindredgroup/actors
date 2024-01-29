@@ -9,6 +9,7 @@
             { "Throttle", () => Examples.Throttle.Example.RunAsync() },
             { "Counter", () => Examples.Counter.Example.RunAsync() },
             { "Batch", () => Examples.Batch.Example.RunAsync() },
+            { "Backpressure", () => Examples.Backpresure.Example.RunAsync() },
         };
 
         if (args.Length == 1)           // run a specific example
