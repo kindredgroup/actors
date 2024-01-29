@@ -55,6 +55,7 @@ public class TroupeTest
 
         actors.AssertNoError();
     }
+    
     [TestMethod]
     public async Task TestDrainAll()
     {
