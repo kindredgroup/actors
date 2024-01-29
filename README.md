@@ -53,16 +53,16 @@ When an actor is constantly posted work at a rate close to its throughput, it wi
 
 Benchmarks were run using the following setup:
 
-|&nbsp;           |&nbsp;
-|-----------------|-------------------------------------
-|Harness          |BenchmarkDotNet v0.13.12             
-|OS               |Ubuntu 22.04.3 LTS (Jammy Jellyfish) 
-|Framework        |.NET SDK 8.0.101
-|Processor        |AMD EPYC 7763, 1 CPU, 4 logical and 2 physical cores, virtualised
+|Parameter    |Value
+|-------------|-------------------------------------
+|Harness      |BenchmarkDotNet v0.13.12             
+|OS           |Ubuntu 22.04.3 LTS (Jammy Jellyfish) 
+|Framework    |.NET SDK 8.0.101
+|Processor    |AMD EPYC 7763, 1 CPU, 4 logical and 2 physical cores, virtualised
 
 Results:
 
-|Path             |Time-cost     |Methodology
+|Path             |Time-cost     |Calculation
 |-----------------|--------------|---------------
-|Fast             |106 ns/op     |FireAndForgetBenchmark, time / number of messages
-|Slow             |1 µs/op       |EchoBenchmark, time / number of messages / 2
+|Fast             |106 ns/op     |`FireAndForgetBenchmark`, time / number of messages
+|Slow             |1.3 µs/op     |`EchoBenchmark`, time / number of messages / 2
