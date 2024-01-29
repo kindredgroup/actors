@@ -5,7 +5,7 @@ using BenchmarkDotNet.Attributes;
 
 namespace Actors.Benchmarks;
 
-public class FireAndForget
+public class FireAndForgetBenchmark
 {
     class FireAndForgetWorker : Actor<int>
     {

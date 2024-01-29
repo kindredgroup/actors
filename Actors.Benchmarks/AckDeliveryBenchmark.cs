@@ -5,7 +5,7 @@ using BenchmarkDotNet.Attributes;
 
 namespace Actors.Benchmarks;
 
-public class AckDelivery
+public class AckDeliveryBenchmark
 {
     class WorkItem
     {

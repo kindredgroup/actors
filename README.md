@@ -45,3 +45,24 @@ Pass the name of an example to run just that. For example, to run the `Batch` ex
 ```sh
 just run Batch
 ```
+
+# Performance
+Most of the overhead in an actor system is in the scheduling of dormant actors when they receive their first message and the subsequent unscheduling when they process their last. We'll call this the 'slow path'.
+
+When an actor is constantly posted work at a rate close to its throughput, it will remain scheduled and the overhead is one monitor entry per `Send()` and one per `Receive()`. We'll call this the 'fast path'.
+
+Benchmarks were run using the following setup:
+
+|&nbsp;           |&nbsp;
+|-----------------|-------------------------------------
+|Harness          |BenchmarkDotNet v0.13.12             
+|OS               |Ubuntu 22.04.3 LTS (Jammy Jellyfish) 
+|Framework        |.NET SDK 8.0.101
+|Processor        |AMD EPYC 7763, 1 CPU, 4 logical and 2 physical cores, virtualised
+
+Results:
+
+|Path             |Time-cost     |Methodology
+|-----------------|--------------|---------------
+|Fast             |106 ns/op     |FireAndForgetBenchmark, time / number of messages
+|Slow             |1 µs/op       |EchoBenchmark, time / number of messages / 2

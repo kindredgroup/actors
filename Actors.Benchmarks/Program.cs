@@ -8,8 +8,9 @@ namespace Actors.Benchmarks
         public static void Main(string[] args)
         {
             var config = DefaultConfig.Instance;
-            BenchmarkRunner.Run<FireAndForget>(config, args);
-            BenchmarkRunner.Run<AckDelivery>(config, args);
+            BenchmarkRunner.Run<FireAndForgetBenchmark>(config, args);
+            BenchmarkRunner.Run<AckDeliveryBenchmark>(config, args);
+            BenchmarkRunner.Run<EchoBenchmark>(config, args);
 
             // Use this to select benchmarks from the console:
             // var summaries = BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args, config);
