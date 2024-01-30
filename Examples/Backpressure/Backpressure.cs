@@ -40,31 +40,25 @@ public class Example
         const int MaxPending = 10;
 
         var sinkActor = new SinkActor();
-        var pendingWork = new Dictionary<int, Task>();
+        var pendingWork = new List<Task>();
         for (int i = 0; i < Messages; i++)
         {
             var workItem = new WorkItem(i);
             await FreeCapacityAsync(pendingWork, MaxPending);
-            pendingWork[workItem.Id] = workItem.Completion.Task;
+            pendingWork.Add(workItem.Completion.Task);
             Console.WriteLine("submitting work item {0}", workItem.Id);
             sinkActor.Send(workItem);
         }
         await sinkActor.Drain();
     }
 
-    private static async Task FreeCapacityAsync(Dictionary<int, Task> pendingWork, int maxPending)
+    private static async Task FreeCapacityAsync(List<Task> pendingWork, int maxPending)
     {
         if (pendingWork.Count == maxPending)
         {
             Console.WriteLine("waiting for backlog to subside");
-            await Task.WhenAny(pendingWork.Values);
-            foreach (var entry in pendingWork)
-            {
-                if (entry.Value.IsCompleted)
-                {
-                    pendingWork.Remove(entry.Key);
-                }
-            }
+            await Task.WhenAny(pendingWork);
+            pendingWork.RemoveAll(task => task.IsCompleted);
             Console.WriteLine("reduced to {0}", pendingWork.Count);
         }
     }

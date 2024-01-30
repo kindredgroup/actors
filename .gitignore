@@ -264,3 +264,4 @@ FakesAssemblies/
 
 .idea
 BenchmarkDotNet.Artifacts
+.DS_Store
